@@ -1,0 +1,4 @@
+tornado==2.1.1
+# pycurl and simplejson and needed for tornado if python 2.5
+pycurl==7.18.1
+simplejson==2.3.0
