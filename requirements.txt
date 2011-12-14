@@ -1,4 +1,9 @@
+# pip install anything and do pip freeze to get the contents of this file
+# pip install -r requirements.txt to install the listed packages
+
+distribute==0.6.19
 tornado==2.1.1
 # pycurl and simplejson and needed for tornado if python 2.5
-pycurl==7.18.1
-simplejson==2.3.0
+# pycurl==7.18.1
+# simplejson==2.3.0
+wsgiref==0.1.2
