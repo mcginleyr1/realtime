@@ -19,7 +19,7 @@ class ChartHandler(tornado.websocket.WebSocketHandler):
         and tornado websockets don't work with Chrome 16.
         Safari 5.1.2 works though, woo hoo!
         """
-        
+
         if not self.stream.closed():
             self.write_message({'foo': 'bar'})
 
