@@ -7,7 +7,7 @@ import tornado.web
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from monetate import PROJECT_ROOT
-from monetate.presenter import handlers
+from monetate.services import handlers
 
 application = tornado.web.Application(
     handlers=[
