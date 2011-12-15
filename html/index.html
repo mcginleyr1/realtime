@@ -1,7 +1,16 @@
 <html>
-   <head>
-      <title>{{ title }}</title>
-   </head>
-   <body>
-   </body>
+    <head>
+        <title>{{ title }}</title>
+    </head>
+    <body>
+        <script type="text/javascript">
+            var ws = new WebSocket("ws://localhost:8888/wstest");
+            ws.onopen = function() {
+               ws.send("Hello, world");
+            };
+            ws.onmessage = function(evt) {
+               alert(evt.data);
+            };
+        </script>
+    </body>
  </html>
