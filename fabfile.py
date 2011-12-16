@@ -47,3 +47,8 @@ def install_python_deps():
 def transfer_brukva():
     ops.put('tools/brukva', '~/')
     api.sudo('./brukva/setup.py install')
+
+def transfer_app()
+    api.sudo('mkdir realtime')
+    ops.put('build/monetate', '~/realtime/')
+    ops.put('build/static', '~/realtime/')

@@ -7,6 +7,7 @@ EXTERNALS = FileList.new('extern/closure-library/**/*.js')
 JAVASCRIPT = FileList.new('javascript/**/*.js').exclude('dashboard.js')
 TEMPLATES = FileList.new('templates/**/*.soy')
 BUILT_TEMPLATES = FileList.new('build/templates/**/*')
+HTML_TEMPLATES = FileList.new('html/**/*')
 
 #Roots
 EXTERNS = 'extern/closure-library/'
@@ -19,12 +20,15 @@ CLOSURE_COMPILER = 'tools/closure-compiler/compiler.jar'
 
 #Build dirs
 BUILD_TEMPLATES = 'build/templates/'
-SITE_OUTPUT = 'build/dashboard.js'
+SITE_OUTPUT = 'build/static/dashboard.js'
+HTML_OUTPUT = 'build/static/'
 
+#Expected directories
+directory "build"
 
 ##Tasks
 desc "Compile the soy templates"
-task :compile_soy do
+task :compile_soy => "build" do
   command = "java -jar #{SOY_COMPILER} #{TEMPLATES.to_s} \
       --outputPathFormat #{BUILD_TEMPLATES}{INPUT_FILE_NAME_NO_EXT}.js \
       --shouldGenerateJsdoc \
@@ -34,7 +38,7 @@ task :compile_soy do
 end
 
 desc "Compile the site javascript."
-task :compile_site => [:compile_soy] do
+task :compile_site => ["build", :compile_soy] do
     inputs = JAVASCRIPT.map{|x| "-i #{x} "}.compact
     built_templates = BUILT_TEMPLATES.map{|x| "-i #{x} "}.compact
     command = "#{CLOSURE_BUILDER} \
@@ -50,9 +54,13 @@ task :compile_site => [:compile_soy] do
     sh command
 end
 
+desc "Put templates in the build dir."
+task :html => ["build", "build/static"] do
+    cp HTML_TEMPLATES, HTML_OUTPUT
+end
+
 desc "Run the unit tests."
-task :build=> [:compile_site] do
-    puts "BUILT"
+task :deploy => [:html, :services] do
 end
 
 desc "Run the unit tests."
