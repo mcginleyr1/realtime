@@ -4,7 +4,7 @@ import fabric.api as api
 import fabric.context_managers
 import fabric.operations as ops
 
-#Run example fab -H dev-rmcginley-1.monetate.net -i ~/.ssh/id_rsa -u root install
+#Run example fab -H root@dev-rmcginley-1.monetate.net -i ~/.ssh/id_rsa -u root install
 
 #PYTHON_DEPENDENCIES = [
 #    'tornado',
@@ -15,10 +15,8 @@ import fabric.operations as ops
 DEPLOY_PATH = os.path.join('/', 'root', 'realtime')
 
 YUM_DEPENDENCIES = [
-    'postgresql',
-    'postgresql-contrib',
-    'postgresql-devel',
-    'postgresql-server',
+    'readline',
+    'readline-devel',
     ]
 
 
@@ -31,8 +29,15 @@ def install():
 def install_pip():
     api.sudo('easy_install-2.7 pip')
 
+def install_prereqs():
+    api.sudo('yum install %s' % ' '.join(YUM_DEPENDENCIES))
+
 def install_postgres():
-    api.sudo('yum install %s' % (' '.join(YUM_DEPENDENCIES)))
+    api.run('wget http://ftp.postgresql.org/pub/source/v9.1.2/postgresql-9.1.2.tar.gz')
+    api.run('tar xvf postgresql-9.1.2.tar.gz')
+    api.run('cd postgresql-9.1.2 && ./configure')
+    api.run('cd postgresql-9.1.2 && make')
+    api.sudo('cd postgresql-9.1.2 && make install')
 
 def install_python_27():
     api.run('wget http://python.org/ftp/python/2.7.2/Python-2.7.2.tgz')
