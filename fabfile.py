@@ -64,6 +64,8 @@ def deploy():
         api.run('git checkout master')
         api.run('git pull')
 
+    install_python_deps()
+
 def transfer_app():
     api.sudo('mkdir realtime')
     ops.put('css', '~/realtime/.')
