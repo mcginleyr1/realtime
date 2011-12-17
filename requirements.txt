@@ -7,3 +7,10 @@ tornado==2.1.1
 # pycurl==7.18.1
 # simplejson==2.3.0
 wsgiref==0.1.2
+
+-e git+https://github.com/evilkost/brukva.git#egg=Brukva
+
+psycopg2==2.4.3
+
+Fabric==1.3.3
+

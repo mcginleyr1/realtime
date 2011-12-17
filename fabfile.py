@@ -1,13 +1,18 @@
+import os.path
+
 import fabric.api as api
+import fabric.context_managers
 import fabric.operations as ops
 
 #Run example fab -H dev-rmcginley-1.monetate.net -i ~/.ssh/id_rsa -u root install
 
-PYTHON_DEPENDENCIES = [
-    'tornado', 
-    'psycopg2', 
-    'sqlalchemy',
-    ]
+#PYTHON_DEPENDENCIES = [
+#    'tornado',
+#    'psycopg2',
+#    'sqlalchemy',
+#    ]
+
+DEPLOY_PATH = os.path.join('/', 'root', 'realtime')
 
 YUM_DEPENDENCIES = [
     'postgresql',
@@ -24,7 +29,7 @@ def install():
     install_python_deps()
 
 def install_pip():
-    api.sudo('easy_install pip')
+    api.sudo('easy_install-2.7 pip')
 
 def install_postgres():
     api.sudo('yum install %s' % (' '.join(YUM_DEPENDENCIES)))
@@ -40,13 +45,18 @@ def install_python_27():
     api.sudo('sh setuptools-0.6c11-py2.7.egg')
 
 def install_python_deps():
-    api.sudo('pip install %s' %  (' '.join(PYTHON_DEPENDENCIES)))
-    transfer_brukva()
+#    api.sudo('pip install %s' %  (' '.join(PYTHON_DEPENDENCIES)))
+#    transfer_brukva()
+    api.sudo('pip-2.7 install -r %s' % os.path.join(DEPLOY_PATH, 'requirements.txt'))
 
+#def transfer_brukva():
+#    ops.put('tools/brukva', '~/')
+#    api.sudo('./brukva/setup.py install')
 
-def transfer_brukva():
-    ops.put('tools/brukva', '~/')
-    api.sudo('./brukva/setup.py install')
+def deploy():
+    with fabric.context_managers.cd(DEPLOY_PATH):
+        api.run('git checkout master')
+        api.run('git pull')
 
 def transfer_app():
     api.sudo('mkdir realtime')
@@ -54,3 +64,4 @@ def transfer_app():
     ops.put('html', '~/realtime/.')
     ops.put('javascript', '~/realtime/.')
     ops.put('monetate', '~/realtime/.')
+    ops.put('requirements.txt', '~/realtime/.')
