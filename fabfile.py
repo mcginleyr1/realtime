@@ -52,7 +52,8 @@ def install_python_27():
 def install_python_deps():
 #    api.sudo('pip install %s' %  (' '.join(PYTHON_DEPENDENCIES)))
 #    transfer_brukva()
-    api.sudo('pip-2.7 install -r %s' % os.path.join(DEPLOY_PATH, 'requirements.txt'))
+    with fabric.context_managers.cd(DEPLOY_PATH):
+        api.sudo('pip-2.7 install -r requirements.txt')
 
 #def transfer_brukva():
 #    ops.put('tools/brukva', '~/')
