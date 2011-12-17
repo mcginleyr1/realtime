@@ -33,6 +33,8 @@ def install_prereqs():
     api.sudo('yum install %s' % ' '.join(YUM_DEPENDENCIES))
 
 def install_postgres():
+    install_prereqs()
+
     api.run('wget http://ftp.postgresql.org/pub/source/v9.1.2/postgresql-9.1.2.tar.gz')
     api.run('tar xvf postgresql-9.1.2.tar.gz')
     api.run('cd postgresql-9.1.2 && ./configure')
