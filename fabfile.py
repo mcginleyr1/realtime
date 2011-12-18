@@ -37,9 +37,10 @@ def install_postgres():
 def install_python_27():
     api.run('wget http://python.org/ftp/python/2.7.2/Python-2.7.2.tgz')
     api.run('tar xvf Python-2.7.2.tgz')
-    api.run('cd Python-2.7.2/ && sh configure')
-    api.run('cd Python-2.7.2/ && make')
-    api.sudo('cd Python-2.7.2/ && make install')
+    with fabric.context_managers.cd('Python-2.7.2'):
+        api.run('sh configure')
+        api.run('make')
+        api.sudo('make install')
     api.run('wget http://pypi.python.org/packages/2.7/s/setuptools/' \
             'setuptools-0.6c11-py2.7.egg#md5=fe1f997bc722265116870bc7919059ea')
     api.sudo('sh setuptools-0.6c11-py2.7.egg')
