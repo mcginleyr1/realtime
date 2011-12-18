@@ -6,19 +6,12 @@ import fabric.operations as ops
 
 #Run example fab -H root@dev-rmcginley-1.monetate.net -i ~/.ssh/id_rsa -u root install
 
-#PYTHON_DEPENDENCIES = [
-#    'tornado',
-#    'psycopg2',
-#    'sqlalchemy',
-#    ]
-
 DEPLOY_PATH = os.path.join('/', 'root', 'realtime')
 
 YUM_DEPENDENCIES = [
     'readline',
     'readline-devel',
     ]
-
 
 def install():
     install_python_27()
@@ -52,14 +45,8 @@ def install_python_27():
     api.sudo('sh setuptools-0.6c11-py2.7.egg')
 
 def install_python_deps():
-#    api.sudo('pip install %s' %  (' '.join(PYTHON_DEPENDENCIES)))
-#    transfer_brukva()
     with fabric.context_managers.cd(DEPLOY_PATH):
         api.sudo('pip-2.7 install -r requirements.txt')
-
-#def transfer_brukva():
-#    ops.put('tools/brukva', '~/')
-#    api.sudo('./brukva/setup.py install')
 
 def deploy():
     with fabric.context_managers.cd(DEPLOY_PATH):
