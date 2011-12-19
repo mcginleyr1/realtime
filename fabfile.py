@@ -71,9 +71,8 @@ def deploy():
     install_python_deps()
 
 def transfer_app():
-    api.sudo('mkdir realtime')
-    ops.put('css', '~/realtime/.')
-    ops.put('html', '~/realtime/.')
-    ops.put('javascript', '~/realtime/.')
+    api.sudo('mkdir -p realtime')
+    ops.put('static', '~/realtime/.')
     ops.put('monetate', '~/realtime/.')
     ops.put('requirements.txt', '~/realtime/.')
+    ops.put('tools/replay-track.py', '~/.')
