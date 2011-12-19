@@ -77,3 +77,4 @@ def transfer_app():
     ops.put('javascript', '~/realtime/.')
     ops.put('monetate', '~/realtime/.')
     ops.put('requirements.txt', '~/realtime/.')
+    ops.put('tools/replay-track.py', '~/.')

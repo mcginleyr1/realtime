@@ -5,12 +5,10 @@ import boto
 import boto.s3.key
 import bz2
 import optparse
+import re
 import simplejson
-import tempfilejj
+import tempfile
 import urllib2
-
-
-TARGET_IP = ""
 
 LOG_MATCHER = re.compile(
     "(?P<logdir>\w+)\D"
@@ -22,7 +20,7 @@ LOG_MATCHER = re.compile(
     "(?P<timestamp>\w+)"
     "\.log\.bz2\Z")
 
-def parse_s3_url(url):
+def parse_s3_uri(url):
     """
     Parse s3 url into (bucket, prefix) tuple.
     Supported urls:
@@ -51,7 +49,7 @@ def query_s3_track_set(uri):
     s3 = boto.connect_s3() # New connection for each s3 request
     bucket = s3.get_bucket(bucket_name, validate=False) # Do not list all keys in bucket
     for key in bucket.list(prefix=key_prefix):
-        m = matcher.match(key.name)
+        m = LOG_MATCHER.match(key.name)
         if m:
             d = m.groupdict()
             if d['type'] == 'track':
@@ -62,12 +60,12 @@ def format_request_data(data):
     """
     Returns a string matching how our request should look
     """
-    pass
+    return 'encode?"%s"' % data
 
-def main(s3_uri):
+def main(s3_uri, ip):
     urls = query_s3_track_set(s3_uri)
     for url in urls:
-        (bucket_name, key_name) = parse_s3_url(filename)
+        (bucket_name, key_name) = parse_s3_uri(url)
         s3 = boto.connect_s3()
         bucket = s3.get_bucket(bucket_name, validate=False)
         key = boto.s3.key.Key(bucket, key_name)
@@ -79,7 +77,8 @@ def main(s3_uri):
                 while line:
                     data = get_track_data(line)
                     query_str = format_request_data(data)
-                    record_url = "http://%s:80/intelligence/%s" % (TARGET_IP, query_str)
+                    record_url = "http://%s:8899/intelligence/%s" % (ip, query_str)
+                    print record_url
                     urllib2.urlopen(record_url)
                     line = b.readline()
 
@@ -87,5 +86,6 @@ def main(s3_uri):
 if __name__ == "__main__":
     parser = optparse.OptionParser()
     parser.add_option('--uri', type='str', dest='uri', help="s3_uri to look for logs in.")
+    parser.add_option('--ip', type='str', dest='ip', help="IP to hit with query")
     options, args = parser.parse_args()
-    main(options.uri)
+    main(options.uri, options.ip)
