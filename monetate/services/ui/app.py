@@ -18,7 +18,7 @@ application = tornado.web.Application(
     template_path=settings.TEMPLATE_PATH,
     static_path=settings.STATIC_PATH,
     # debug=True adds autoreload and recompiles templates on every request
-    debug=True
+    debug=settings.DEBUG
 )
 
 if __name__ == "__main__":
