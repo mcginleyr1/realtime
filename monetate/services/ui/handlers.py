@@ -1,14 +1,11 @@
 import datetime
 import logging
 
-import brukva
-
 import tornado.ioloop
 import tornado.web
 import tornado.websocket
 
 from monetate.config import database, settings
-from monetate.config import utils as config_utils
 from monetate import keys as redis_keys
 
 class SimpleTemplateHandler(tornado.web.RequestHandler):
