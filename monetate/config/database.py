@@ -1,6 +1,41 @@
+import re
+
+import brukva
 from sqlalchemy import MetaData, create_engine
 
 import settings as settings
+
+class Redis(object):
+    REDIS_DSN_PAT = re.compile('^redis://(?P<host>.+):(?P<port>\d+)/(?P<db>.+)$')
+
+    def _get_redis_conn_parts(self):
+        """
+        Return a dict of the redis host, port and db.
+        """
+
+        match = self.REDIS_DSN_PAT.match(self.conn_str)
+        assert match
+
+        return {'host': match.group('host'),
+                'port': int(match.group('port')),
+                'db': match.group('db')}
+
+    def __init__(self, conn_str=None):
+        if conn_str:
+            self.conn_str = conn_str
+        else:
+            self.conn_str = settings.REDIS_DSN
+
+        redis_conn = self._get_redis_conn_parts()
+
+        self.client = brukva.Client(
+            host=redis_conn['host'],
+            port=redis_conn['port'],
+            selected_db=redis_conn['db']
+        )
+
+        self.client.connect()
+
 
 class Database():
     """
