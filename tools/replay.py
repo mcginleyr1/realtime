@@ -52,15 +52,36 @@ def query_s3_track_set(uri):
         m = LOG_MATCHER.match(key.name)
         if m:
             d = m.groupdict()
-            if d['type'] == 'track':
+            if d['type'] == 'session':
                 urls.add( "s3://%s/%s" % (bucket_name, key.name) )
     return urls
+
+def cat_key(line, value):
+    """ Concat together the new value and the existing line """
+    if value:
+        if line:
+            line = "%s&%s" % (line, value)
+        else:
+            line = value
+    return line
 
 def format_request_data(data):
     """
     Returns a string matching how our request should look
     """
-    return '?encoded="%s"' %  simplejson.dumps(data).replace(' ', '').replace('"', "'")
+    account = data['visitor']['account_id']
+    add_to_cart = data['visit']['has_add_cart']
+    new_customer = data['visit']['new_customer']
+    purchases = data['session']['purchase']
+    offers = data['session']['offer']
+    for offer in offers:
+        for purchase in purchases:
+            grp = offer['grp']
+            purchase_value = purchase.get('value', None)
+            line = ''
+            
+
+            yield '?encoded="%s"' % line
 
 def main(s3_uri, ip):
     urls = query_s3_track_set(s3_uri)
@@ -76,11 +97,10 @@ def main(s3_uri, ip):
                 line = b.readline()
                 while line:
                     data = get_track_data(line)
-                    query_str = format_request_data(data)
-                    record_url = "http://%s:8899/intelligence/%s" % (ip, query_str)
-                    print record_url
-                    urllib2.urlopen(record_url)
-                    line = b.readline()
+                    for query_str in format_request_data(data):
+                        record_url = "http://%s:8899/intelligence/%s" % (ip, query_str)
+                        urllib2.urlopen(record_url)
+                        line = b.readline()
 
 
 if __name__ == "__main__":
