@@ -1,33 +1,32 @@
 import datetime
 import logging
 
-import brukva
-
 import tornado.ioloop
 import tornado.web
 import tornado.websocket
 
 from monetate.config import database, settings
-from monetate.config import utils as config_utils
 from monetate import keys as redis_keys
 
-class SimpleTemplateHandler(tornado.web.RequestHandler):
+
+class LandingHandler(tornado.web.RequestHandler):
     def get(self, *args, **kwargs):
-        assert self.template_name, "template_name is missing"
-
-        self.render(self.template_name, ui_port=settings.UI_PORT)
+        self.render('index.html')
 
 
-class LandingHandler(SimpleTemplateHandler):
-    template_name = 'index.html'
-
-
-class MetricsHandler(SimpleTemplateHandler):
-    template_name = 'metrics.html'
+class MetricsHandler(tornado.web.RequestHandler):
+    def get(self, *args, **kwargs):
+        self.render('metrics.html',
+                    ui_port=settings.UI_PORT,
+                    account_id=kwargs['account_id'],
+                    campaign_id=kwargs['campaign_id'])
 
 
 class MetricDataHandler(tornado.websocket.WebSocketHandler):
     # TODO: Use a separate IOLoop for the WebSocket stuff?
+
+    keys = []
+
 
     def _send_metric_data(self, results):
         """
@@ -43,8 +42,13 @@ class MetricDataHandler(tornado.websocket.WebSocketHandler):
             logging.debug('stream closed, metric data not sent')
         else:
             logging.debug('metric data results: %s' % results)
-            print 'results', results
-            self.write_message({'foo': 'bar'})
+            #print 'results', results
+            # TODO: If both results are None, do not write the message.
+            data = {
+                'control_group': results[0],
+                'experiment_group': results[1]
+            }
+            self.write_message(data)
 
 
     def _send_metric_data_and_requeue(self, campaign_id):
@@ -85,7 +89,9 @@ class MetricDataHandler(tornado.websocket.WebSocketHandler):
         We don't care what the message is, it's just a signal
         that we can start repeatedly sending the client metric data.
         """
-        campaign_id = int(message)
+        account_id, campaign_id = message.split('/')
+        account_id = int(account_id)
+        campaign_id = int(campaign_id)
 
         tornado.ioloop.IOLoop.instance().add_callback(
             self.async_callback(self._send_metric_data_and_requeue, campaign_id)
