@@ -34,6 +34,14 @@ def install_postgres():
     api.run('cd postgresql-9.1.2 && make')
     api.sudo('cd postgresql-9.1.2 && make install')
 
+def install_redis():
+    api.run('wget http://redis.googlecode.com/files/redis-2.4.4.tar.gz')
+    api.run('tar xzf redis-2.4.4.tar.gz')
+    with fabric.context_managers.cd('redis-2.4.4'):
+        api.run('make')
+
+    # Run redis with redis-2.4.4/src/redis-server
+
 def install_python_27():
     api.run('wget http://python.org/ftp/python/2.7.2/Python-2.7.2.tgz')
     api.run('tar xvf Python-2.7.2.tgz')
@@ -46,12 +54,18 @@ def install_python_27():
     api.sudo('sh setuptools-0.6c11-py2.7.egg')
 
 def install_python_deps():
+    # /usr/local/pgsql/bin must be in your path or psycopg2 will not build
     with fabric.context_managers.cd(DEPLOY_PATH):
         api.sudo('pip-2.7 install -r requirements.txt')
 
 def deploy():
+    # Assumes that the repo has been cloned to DEPLOY_PATH.
+    # Before executing for the first time,
+    # git clone git@github.com:mcginleyr1/realtime.git in /root
     with fabric.context_managers.cd(DEPLOY_PATH):
         api.run('git checkout master')
+        # Maybe this should be git fetch origin then git reset --merge
+        # git pull may die if there are merge conflicts.
         api.run('git pull')
 
     install_python_deps()
