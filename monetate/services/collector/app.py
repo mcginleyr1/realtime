@@ -7,10 +7,11 @@ import tornado.web
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from monetate.config import settings
+import recorder
 
 application = tornado.web.Application(
     handlers=[
-        (r"/", handlers.MainHandler),
+        (r"/intelligence/(.*)", recorder.Recorder),
     ],
 )
 
