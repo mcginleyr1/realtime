@@ -6,10 +6,13 @@ import tornado.web
 import tornado.websocket
 
 from monetate.config import settings
+from monetate import keys
 
 GIF = ('GIF89a'
     '\x01\x00\x01\x00\x80\xff\x00\xff\xff\xff\x00\x00\x00\x2c\x00\x00'
     '\x00\x00\x01\x00\x01\x00\x00\x02\x02\x44\x01\x00\x3b\x00')
+
+KEYS = ['purchase_total', 'add_to_cart']
 
 class Recorder(tornado.web.RequestHandler):
 
@@ -20,12 +23,11 @@ class Recorder(tornado.web.RequestHandler):
         }
 
     def get(self, *args, **kwargs):
-        qs = self.get_argument('encoded')
-        data = escape.json_decode(qs)
-        tornado.ioloop.IOLoop.instance().add_callback(self.record, data)
-        #tornado.ioloop.IOLoop.instance().add_callback(
-        #    self.async_callback(self._send_chart_data_and_requeue)
-        #)
+        purchase_total = self.get_argument('purchase_total')
+        data = tornado.escape.json_decode(qs)
+        tornado.ioloop.IOLoop.instance().add_callback(
+            self.async_callback(self.record, data)
+        )
         self.set_header("content-type","image/gif")
         self.write(GIF)
         self.flush()
@@ -34,5 +36,15 @@ class Recorder(tornado.web.RequestHandler):
         """
         Records the data.
         """
-        for key, value in data.iteritems():
-            print key, value
+        c = brukva.Client()
+        c.connect()
+        for key in KEYS:
+            value = self.get_argument(key, None)
+            if key == 'purchase_total':
+                update_purchase_total(value)
+
+
+    def update_purchase_total(self, value):
+        brukva.
+
+

@@ -60,7 +60,7 @@ def format_request_data(data):
     """
     Returns a string matching how our request should look
     """
-    return 'encode?"%s"' % data
+    return '?encoded="%s"' %  simplejson.dumps(data).replace(' ', '').replace('"', "'")
 
 def main(s3_uri, ip):
     urls = query_s3_track_set(s3_uri)
