@@ -29,6 +29,9 @@ class MetricsHandler(SimpleTemplateHandler):
 class MetricDataHandler(tornado.websocket.WebSocketHandler):
     # TODO: Use a separate IOLoop for the WebSocket stuff?
 
+    keys = []
+
+
     def _send_metric_data(self, results):
         """
         Send the chart data in a message.
@@ -44,7 +47,11 @@ class MetricDataHandler(tornado.websocket.WebSocketHandler):
         else:
             logging.debug('metric data results: %s' % results)
             print 'results', results
-            self.write_message({'foo': 'bar'})
+            data = {
+                'control_group': results[0],
+                'experiment_group': results[1]
+            }
+            self.write_message(data)
 
 
     def _send_metric_data_and_requeue(self, campaign_id):
