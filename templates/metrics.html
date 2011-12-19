@@ -2,12 +2,14 @@
 
 {% block bottom-js %}
     <script type="text/javascript">
-        var ws = new WebSocket("ws://localhost:{{ ui_port }}/wstest");
+        var ws = new WebSocket("ws://localhost:{{ ui_port }}/d/metrics");
         ws.onopen = function() {
-           ws.send("Hello, world");
+            // campaign id, maybe send as json?
+            ws.send("12345");
         };
         ws.onmessage = function(evt) {
-           alert(evt.data);
+            window.console.log(evt.data);
+            //alert(evt.data);
         };
     </script>
 {% end %}

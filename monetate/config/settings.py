@@ -6,6 +6,8 @@ TEMPLATE_PATH = os.path.join(PROJECT_ROOT, 'templates')
 
 DEFAULT_DSN = 'postgresql+psycopg2://user:password@host:port/dbname'
 
+REDIS_DSN = 'redis://localhost:6379/realtime'
+
 COLLECTOR_PORT = 8888
 UI_PORT = 8889
 

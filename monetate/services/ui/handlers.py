@@ -1,10 +1,15 @@
 import datetime
+import logging
+
+import brukva
 
 import tornado.ioloop
 import tornado.web
 import tornado.websocket
 
-from monetate.config import settings
+from monetate.config import database, settings
+from monetate.config import utils as config_utils
+from monetate import keys as redis_keys
 
 class SimpleTemplateHandler(tornado.web.RequestHandler):
     def get(self, *args, **kwargs):
@@ -21,8 +26,10 @@ class MetricsHandler(SimpleTemplateHandler):
     template_name = 'metrics.html'
 
 
-class ChartHandler(tornado.websocket.WebSocketHandler):
-    def _send_chart_data_once(self):
+class MetricDataHandler(tornado.websocket.WebSocketHandler):
+    # TODO: Use a separate IOLoop for the WebSocket stuff?
+
+    def _send_metric_data(self, results):
         """
         Send the chart data in a message.
         The handler will convert the dict into JSON.
@@ -32,27 +39,60 @@ class ChartHandler(tornado.websocket.WebSocketHandler):
         Safari 5.1.2 works though, woo hoo!
         """
 
-        if not self.stream.closed():
+        if self.stream.closed():
+            logging.debug('stream closed, metric data not sent')
+        else:
+            logging.debug('metric data results: %s' % results)
+            print 'results', results
             self.write_message({'foo': 'bar'})
 
-    def _send_chart_data_and_requeue(self):
+
+    def _send_metric_data_and_requeue(self, campaign_id):
+        """
+        If the WebSocket stream is still open then send the metric data
+        and queue this method up again in the event loop.
+        """
         if self.stream.closed():
             pass
         else:
-            self._send_chart_data_once()
+            self.redis_client.mget(
+                [
+                    redis_keys.get_campaign_key(campaign_id, 'control_group'),
+                    redis_keys.get_campaign_key(campaign_id, 'experiment_group')
+                ],
+                self._send_metric_data
+            )
 
             tornado.ioloop.IOLoop.instance().add_timeout(
                 datetime.timedelta(seconds=3),
-                self.async_callback(self._send_chart_data_and_requeue)
+                self.async_callback(self._send_metric_data_and_requeue, campaign_id)
             )
 
+
     def open(self, *args, **kwargs):
-        print "WebSocket opened"
+        # We could do something fancy here like keep track of all instances of
+        # this class at the class level by campaign id and
+        # when then when we write the metric data we could iterate over all of
+        # the instances and write to all of them at once.
+        logging.debug('WebSocket opened, getting redis connection')
+
+        self.redis_client = database.Redis().client
+
 
     def on_message(self, message):
+        """
+        Called on sending of a WebSocket message from the client.
+        We don't care what the message is, it's just a signal
+        that we can start repeatedly sending the client metric data.
+        """
+        campaign_id = int(message)
+
         tornado.ioloop.IOLoop.instance().add_callback(
-            self.async_callback(self._send_chart_data_and_requeue)
+            self.async_callback(self._send_metric_data_and_requeue, campaign_id)
         )
 
+
     def on_close(self):
-        print "WebSocket closed"
+        logging.debug('WebSocket closed, closing redis connection')
+
+        self.redis_client.disconnect()
