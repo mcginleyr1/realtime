@@ -75,4 +75,4 @@ def transfer_app():
     ops.put('static', '~/realtime/.')
     ops.put('monetate', '~/realtime/.')
     ops.put('requirements.txt', '~/realtime/.')
-    ops.put('tools/replay-track.py', '~/.')
+    ops.put('tools/replay.py', '~/.')
