@@ -19,3 +19,5 @@ campaign_key_patterns = {metric: '%(campaign_id)s/' + metric for metric in campa
 def get_campaign_key(campaign_id, metric):
     return campaign_key_patterns[metric] % {'campaign_id': campaign_id}
 
+#Redis Keyss
+ORDER_VALUE = '%s/order_value/'
