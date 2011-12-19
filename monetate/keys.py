@@ -8,17 +8,10 @@
 # ordervalue = Sum of purchase amounts / number of sessions with a purchase.
 # session_value = Sum of purchase amounts / number of sessions
 
-campaign_metrics = set([
-    'addcart', 'bounce_rate', 'conversion', 'control_group',
-    'control_totalsales', 'experiment_group', 'experiment_totalsales',
-    'ordervalue', 'session_value'
-])
+GROUP_CONTROL = 0
+GROUP_EXPERIMENT = 1
 
-campaign_key_patterns = {metric: '%(campaign_id)s/' + metric for metric in campaign_metrics}
-
-#Redis Keys
-def get_campaign_key(campaign_id, metric):
-    return campaign_key_patterns[metric] % {'campaign_id': campaign_id}
+# Redis Keys
 
 def get_add_to_cart_key(account, campaign, group):
     add_to_cart = '%s/add_to_cart/%s/%s'
@@ -49,5 +42,5 @@ def get_session_value_key(account, campaign, group):
     return session_value % (account, campaign, group)
 
 def get_total_sales_key(account, campaign, group):
-    total_sales = '%s/control_total_sales/%s/%s'
+    total_sales = '%s/total_sales/%s/%s'
     return total_sales % (account, campaign, group)

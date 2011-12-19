@@ -19,9 +19,6 @@
                     type: 'line'
                 },
                 title: {text: 'Sessions'},
-//                xAxis: {
-//                    categories: ['Apples', 'Bananas', 'Oranges']
-//                },
                 yAxis: {
                     title: {text: 'Session Count'}
                 },
@@ -33,7 +30,7 @@
                     {
                         name: 'Experiment Sessions',
                         data: []
-                    },
+                    }
                 ]
             });
             totalsalesChart = new Highcharts.Chart({
@@ -56,7 +53,7 @@
                     {
                         name: 'Experiment Total Sales',
                         data: []
-                    },
+                    }
                 ]
             });
             ordervalueChart = new Highcharts.Chart({
@@ -79,7 +76,7 @@
                     {
                         name: 'Experiment AOV',
                         data: []
-                    },
+                    }
                 ]
             });
         });
@@ -96,13 +93,17 @@
 
             d = $.parseJSON(evt.data);
 
-            var controlGroupSeries = sessionsChart.series[0];
-            var experimentGroupSeries = sessionsChart.series[1];
+            var groupControlSeries = sessionsChart.series[0];
+            var shift = (groupControlSeries.data.length > 20);
 
-            var shift = ((controlGroupSeries.data.length > 20) || (experimentGroupSeries.data.length > 20));
+            sessionsChart.series[0].addPoint(parseInt(d['group_control']), true, shift);
+            sessionsChart.series[1].addPoint(parseInt(d['group_experiment']), true, shift);
 
-            sessionsChart.series[0].addPoint(parseInt(d['control_group']), true, shift);
-            sessionsChart.series[1].addPoint(parseInt(d['experiment_group']), true, shift);
+            totalsalesChart.series[0].addPoint(parseFloat(d['total_sales_control']), true, shift);
+            totalsalesChart.series[1].addPoint(parseFloat(d['total_sales_experiment']), true, shift);
+
+            ordervalueChart.series[0].addPoint(parseFloat(d['order_value_control']), true, shift);
+            ordervalueChart.series[1].addPoint(parseFloat(d['order_value_experiment']), true, shift);
         };
     </script>
 {% end %}

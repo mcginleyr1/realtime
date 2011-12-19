@@ -25,9 +25,6 @@ class MetricsHandler(tornado.web.RequestHandler):
 class MetricDataHandler(tornado.websocket.WebSocketHandler):
     # TODO: Use a separate IOLoop for the WebSocket stuff?
 
-    keys = []
-
-
     def _send_metric_data(self, results):
         """
         Send the chart data in a message.
@@ -45,13 +42,17 @@ class MetricDataHandler(tornado.websocket.WebSocketHandler):
             #print 'results', results
             # TODO: If both results are None, do not write the message.
             data = {
-                'control_group': results[0],
-                'experiment_group': results[1]
+                'group_control': results[0],
+                'group_experiment': results[1],
+                'total_sales_control': results[2],
+                'total_sales_experiment': results[3],
+                'order_value_control': results[4],
+                'order_value_experiment': results[5],
             }
             self.write_message(data)
 
 
-    def _send_metric_data_and_requeue(self, campaign_id):
+    def _send_metric_data_and_requeue(self, account_id, campaign_id):
         """
         If the WebSocket stream is still open then send the metric data
         and queue this method up again in the event loop.
@@ -61,15 +62,19 @@ class MetricDataHandler(tornado.websocket.WebSocketHandler):
         else:
             self.redis_client.mget(
                 [
-                    redis_keys.get_campaign_key(campaign_id, 'control_group'),
-                    redis_keys.get_campaign_key(campaign_id, 'experiment_group')
+                    redis_keys.get_group_key(account_id, campaign_id, redis_keys.GROUP_CONTROL),
+                    redis_keys.get_group_key(account_id, campaign_id, redis_keys.GROUP_EXPERIMENT),
+                    redis_keys.get_total_sales_key(account_id, campaign_id, redis_keys.GROUP_CONTROL),
+                    redis_keys.get_total_sales_key(account_id, campaign_id, redis_keys.GROUP_EXPERIMENT),
+                    redis_keys.get_order_value_key(account_id, campaign_id, redis_keys.GROUP_CONTROL),
+                    redis_keys.get_order_value_key(account_id, campaign_id, redis_keys.GROUP_EXPERIMENT),
                 ],
                 self._send_metric_data
             )
 
             tornado.ioloop.IOLoop.instance().add_timeout(
-                datetime.timedelta(seconds=3),
-                self.async_callback(self._send_metric_data_and_requeue, campaign_id)
+                datetime.timedelta(seconds=2),
+                self.async_callback(self._send_metric_data_and_requeue, account_id, campaign_id)
             )
 
 
@@ -94,7 +99,7 @@ class MetricDataHandler(tornado.websocket.WebSocketHandler):
         campaign_id = int(campaign_id)
 
         tornado.ioloop.IOLoop.instance().add_callback(
-            self.async_callback(self._send_metric_data_and_requeue, campaign_id)
+            self.async_callback(self._send_metric_data_and_requeue, account_id, campaign_id)
         )
 
 
