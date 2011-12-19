@@ -4,9 +4,21 @@ import tornado.ioloop
 import tornado.web
 import tornado.websocket
 
-class MainHandler(tornado.web.RequestHandler):
+from monetate.config import settings
+
+class SimpleTemplateHandler(tornado.web.RequestHandler):
     def get(self, *args, **kwargs):
-        self.render('index.html', title='Foo')
+        assert self.template_name, "template_name is missing"
+
+        self.render(self.template_name, ui_port=settings.UI_PORT)
+
+
+class LandingHandler(SimpleTemplateHandler):
+    template_name = 'index.html'
+
+
+class MetricsHandler(SimpleTemplateHandler):
+    template_name = 'metrics.html'
 
 
 class ChartHandler(tornado.websocket.WebSocketHandler):

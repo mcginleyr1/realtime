@@ -4,17 +4,19 @@ import sys
 import tornado.ioloop
 import tornado.web
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 
 from monetate.config import settings
 import handlers
 
 application = tornado.web.Application(
     handlers=[
-        (r"/", handlers.MainHandler),
+        (r"/", handlers.LandingHandler),
+        (r"/metrics", handlers.MetricsHandler),
         (r"/wstest", handlers.ChartHandler)
     ],
-    template_path=os.path.join(settings.PROJECT_ROOT, 'html'),
+    template_path=settings.TEMPLATE_PATH,
+    static_path=settings.STATIC_PATH,
     # debug=True adds autoreload and recompiles templates on every request
     debug=True
 )
