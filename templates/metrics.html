@@ -1,12 +1,16 @@
 {% extends "base.html" %}
 
 {% block main-content %}
-    <div id="sessions_chart_container" style="width: 100%; height: 400px"></div>
+    <div id="sessions_chart_container" style="width: 100%; height: 250px"></div>
+    <div id="totalsales_chart_container" style="width: 100%; height: 250px"></div>
+    <div id="ordervalue_chart_container" style="width: 100%; height: 250px"></div>
 {% end %}
 
 {% block bottom-js %}
     <script type="text/javascript">
         var sessionsChart;
+        var totalsalesChart;
+        var ordervalueChart;
 
         $(document).ready(function() {
             sessionsChart = new Highcharts.Chart({
@@ -14,16 +18,12 @@
                     renderTo: 'sessions_chart_container',
                     type: 'line'
                 },
-                title: {
-                    text: 'Sessions'
-                },
+                title: {text: 'Sessions'},
 //                xAxis: {
 //                    categories: ['Apples', 'Bananas', 'Oranges']
 //                },
                 yAxis: {
-                    title: {
-                        text: 'Session Count'
-                    }
+                    title: {text: 'Session Count'}
                 },
                 series: [
                     {
@@ -36,6 +36,52 @@
                     },
                 ]
             });
+            totalsalesChart = new Highcharts.Chart({
+                chart: {
+                    renderTo: 'totalsales_chart_container',
+                    type: 'line'
+                },
+                title: {text: 'Total Sales'},
+//                xAxis: {
+//                    categories: ['Apples', 'Bananas', 'Oranges']
+//                },
+                yAxis: {
+                    title: {text: '$'}
+                },
+                series: [
+                    {
+                        name: 'Control Total Sales',
+                        data: []
+                    },
+                    {
+                        name: 'Experiment Total Sales',
+                        data: []
+                    },
+                ]
+            });
+            ordervalueChart = new Highcharts.Chart({
+                chart: {
+                    renderTo: 'ordervalue_chart_container',
+                    type: 'line'
+                },
+                title: {text: 'Average Order Value'},
+//                xAxis: {
+//                    categories: ['Apples', 'Bananas', 'Oranges']
+//                },
+                yAxis: {
+                    title: {text: '$'}
+                },
+                series: [
+                    {
+                        name: 'Control AOV',
+                        data: []
+                    },
+                    {
+                        name: 'Experiment AOV',
+                        data: []
+                    },
+                ]
+            });
         });
     </script>
 
@@ -43,7 +89,7 @@
         var ws = new WebSocket("ws://localhost:{{ ui_port }}/d/metrics");
         ws.onopen = function() {
             // campaign id, maybe send as json?
-            ws.send("12345");
+            ws.send("{{ account_id }}/{{ campaign_id }}");
         };
         ws.onmessage = function(evt) {
             //window.console.log(evt.data);
