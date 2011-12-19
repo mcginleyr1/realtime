@@ -56,13 +56,14 @@ def query_s3_track_set(uri):
                 urls.add( "s3://%s/%s" % (bucket_name, key.name) )
     return urls
 
-def cat_key(line, value):
+def cat_key(line, key, value):
     """ Concat together the new value and the existing line """
+
     if value:
         if line:
-            line = "%s&%s" % (line, value)
+            line = "%s&%s=%s" % (line, key, value)
         else:
-            line = value
+            line = "%s=%s" % (key, value)
     return line
 
 def format_request_data(data):
@@ -75,11 +76,17 @@ def format_request_data(data):
     purchases = data['session']['purchase']
     offers = data['session']['offer']
     for offer in offers:
+        grp = offer['grp']
+        cid = offer['campaign_id']
         for purchase in purchases:
-            grp = offer['grp']
             purchase_value = purchase.get('value', None)
             line = ''
-            
+            line = cat_key(line, 'act', account)
+            line = cat_key(line, 'cid', cid)
+            line = cat_key(line, 'grp', grp)
+            line = cat_key(line, 'atc', add_to_cart)
+            line = cat_key(line, 'nc', new_customer)
+            line = cat_key(line, 'pch', purchase_value)
 
             yield '?encoded="%s"' % line
 
@@ -100,7 +107,7 @@ def main(s3_uri, ip):
                     for query_str in format_request_data(data):
                         record_url = "http://%s:8899/intelligence/%s" % (ip, query_str)
                         urllib2.urlopen(record_url)
-                        line = b.readline()
+                    line = b.readline()
 
 
 if __name__ == "__main__":
