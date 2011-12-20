@@ -37,13 +37,14 @@ class RedisWebSocketHandler(tornado.websocket.WebSocketHandler):
     def open(self, *args, **kwargs):
         logging.debug('WebSocket opened, getting redis connection')
 
-        self.redis_client = database.Redis().client
+        #self.redis_client = database.Redis().client
+        self.redis_client = database.SyncRedis().client
 
 
     def on_close(self):
         logging.debug('WebSocket closed, closing redis connection')
 
-        self.redis_client.disconnect()
+        #self.redis_client.disconnect()
 
 
 class CampaignMetricDataHandler(RedisWebSocketHandler):
@@ -105,7 +106,7 @@ class CampaignMetricDataHandler(RedisWebSocketHandler):
         if self.stream.closed():
             pass
         else:
-            self.redis_client.mget(
+            results = self.redis_client.mget(
                 [
                     redis_keys.get_group_key(account_id, campaign_id, redis_keys.GROUP_CONTROL),
                     redis_keys.get_group_key(account_id, campaign_id, redis_keys.GROUP_EXPERIMENT),
@@ -114,14 +115,57 @@ class CampaignMetricDataHandler(RedisWebSocketHandler):
                     redis_keys.get_order_value_key(account_id, campaign_id, redis_keys.GROUP_CONTROL),
                     redis_keys.get_order_value_key(account_id, campaign_id, redis_keys.GROUP_EXPERIMENT),
                     redis_keys.get_add_to_cart_key(account_id, campaign_id, redis_keys.GROUP_CONTROL),
-                    redis_keys.get_add_to_cart_key(account_id, campaign_id, redis_keys.GROUP_EXPERIMENT),
-#                    redis_keys.get_session_value_key(account_id, campaign_id, redis_keys.GROUP_CONTROL),
-#                    redis_keys.get_session_value_key(account_id, campaign_id, redis_keys.GROUP_EXPERIMENT),
-#                    redis_keys.get_conversion_key(account_id, campaign_id, redis_keys.GROUP_CONTROL),
-#                    redis_keys.get_conversion_key(account_id, campaign_id, redis_keys.GROUP_EXPERIMENT),
-                ],
-                self._send_metric_data
+                    redis_keys.get_add_to_cart_key(account_id, campaign_id, redis_keys.GROUP_EXPERIMENT)
+                ]
             )
+
+            group_control = results[0]
+            group_experiment = results[1]
+            add_to_cart_count_control = results[6]
+            add_to_cart_count_experiment = results[7]
+
+            if group_control and add_to_cart_count_control:
+                add_to_cart_control = float(add_to_cart_count_control) / float(group_control)
+            else:
+                add_to_cart_control = None
+            if group_experiment and add_to_cart_count_experiment:
+                add_to_cart_experiment = float(add_to_cart_count_experiment) / float(group_experiment)
+            else:
+                add_to_cart_experiment = None
+
+            data = {
+                'group_control': group_control,
+                'group_experiment': group_experiment,
+                'total_sales_control': results[2],
+                'total_sales_experiment': results[3],
+                'order_value_control': results[4],
+                'order_value_experiment': results[5],
+                'add_to_cart_control': add_to_cart_control,
+                'add_to_cart_experiment': add_to_cart_experiment,
+#                'session_control': results[6],
+#                'session_experiment': results[7],
+#                'conversion_control': results[8],
+#                'conversion_experiment': results[9],
+            }
+            self.write_message(data)
+
+#            self.redis_client.mget(
+#                [
+#                    redis_keys.get_group_key(account_id, campaign_id, redis_keys.GROUP_CONTROL),
+#                    redis_keys.get_group_key(account_id, campaign_id, redis_keys.GROUP_EXPERIMENT),
+#                    redis_keys.get_total_sales_key(account_id, campaign_id, redis_keys.GROUP_CONTROL),
+#                    redis_keys.get_total_sales_key(account_id, campaign_id, redis_keys.GROUP_EXPERIMENT),
+#                    redis_keys.get_order_value_key(account_id, campaign_id, redis_keys.GROUP_CONTROL),
+#                    redis_keys.get_order_value_key(account_id, campaign_id, redis_keys.GROUP_EXPERIMENT),
+#                    redis_keys.get_add_to_cart_key(account_id, campaign_id, redis_keys.GROUP_CONTROL),
+#                    redis_keys.get_add_to_cart_key(account_id, campaign_id, redis_keys.GROUP_EXPERIMENT),
+##                    redis_keys.get_session_value_key(account_id, campaign_id, redis_keys.GROUP_CONTROL),
+##                    redis_keys.get_session_value_key(account_id, campaign_id, redis_keys.GROUP_EXPERIMENT),
+##                    redis_keys.get_conversion_key(account_id, campaign_id, redis_keys.GROUP_CONTROL),
+##                    redis_keys.get_conversion_key(account_id, campaign_id, redis_keys.GROUP_EXPERIMENT),
+#                ],
+#                self._send_metric_data
+#            )
 
             tornado.ioloop.IOLoop.instance().add_timeout(
                 datetime.timedelta(seconds=2),

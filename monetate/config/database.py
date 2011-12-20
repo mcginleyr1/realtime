@@ -1,11 +1,13 @@
 import re
 
 import brukva
+import redis
 from sqlalchemy import MetaData, create_engine
 
 import settings as settings
 
-class Redis(object):
+
+class BaseRedis(object):
     REDIS_DSN_PAT = re.compile('^redis://(?P<host>.+):(?P<port>\d+)/(?P<db>.+)$')
 
     def _get_redis_conn_parts(self):
@@ -20,6 +22,7 @@ class Redis(object):
                 'port': int(match.group('port')),
                 'db': match.group('db')}
 
+class Redis(BaseRedis):
     def __init__(self, conn_str=None):
         if conn_str:
             self.conn_str = conn_str
@@ -36,6 +39,17 @@ class Redis(object):
 
         self.client.connect()
 
+
+class SyncRedis(BaseRedis):
+    def __init__(self, conn_str=None):
+        if conn_str:
+            self.conn_str = conn_str
+        else:
+            self.conn_str = settings.REDIS_DSN
+
+        redis_conn = self._get_redis_conn_parts()
+
+        self.client = redis.StrictRedis(redis_conn['host'], redis_conn['port'])
 
 class Database():
     """
