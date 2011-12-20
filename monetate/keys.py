@@ -19,6 +19,7 @@ def get_account_list_key():
 def get_account_campaign_list_key(account):
     return '%s/campaigns' % account
 
+@deprecated
 def get_control_purchase_total_key(account):
     return '%s/control_purchase_total' % account
 
