@@ -13,7 +13,7 @@ application = tornado.web.Application(
     handlers=[
         (r"/", handlers.LandingHandler),
         (r"/metrics/(?P<account_id>\d+)/(?P<campaign_id>\d+)", handlers.MetricsHandler),
-        (r"/d/metrics", handlers.MetricDataHandler)
+        (r"/d/metrics", handlers.CampaignMetricDataHandler)
     ],
     template_path=settings.TEMPLATE_PATH,
     static_path=settings.STATIC_PATH,

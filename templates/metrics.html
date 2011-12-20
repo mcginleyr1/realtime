@@ -83,7 +83,7 @@
     </script>
 
     <script type="text/javascript">
-        var ws = new WebSocket("ws://localhost:{{ ui_port }}/d/metrics");
+        var ws = new WebSocket("ws://{{ ui_host }}:{{ ui_port }}/d/metrics");
         ws.onopen = function() {
             // campaign id, maybe send as json?
             ws.send("{{ account_id }}/{{ campaign_id }}");
