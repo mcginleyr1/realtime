@@ -15,6 +15,7 @@ class LandingHandler(tornado.web.RequestHandler):
 
         self.redis_client.disconnect()
 
+    @tornado.web.asynchronous
     def get(self, *args, **kwargs):
         self.redis_client = database.Redis().client
 
