@@ -28,7 +28,7 @@ class Recorder(tornado.web.RequestHandler):
         cid = self.get_argument('cid', None)
         add_to_cart = self.get_argument('atc', None)
         new_customer = self.get_argument('nc', None)
-        if not group:
+        if group == 0:
             io.add_callback(self.async_callback(self.purchase_total_control_update, account, purchase_total))
         if cid:
             io.add_callback(self.async_callback(self.update_account_list, account))
