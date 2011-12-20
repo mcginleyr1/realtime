@@ -133,13 +133,13 @@
                 sessionsChart.series[1].addPoint(groupExperiment, true, shift);
             }
 
-            var totalSalesControl = parseInt(d['total_sales_control']);
-            if (!isNaN(totalSalesControl)) {
-                totalsalesChart.series[0].addPoint(totalSalesControl, true, shift);
+            var addToCartControl = parseInt(d['add_to_cart_control']);
+            if (!isNaN(addToCartControl)) {
+                addtocartChart.series[0].addPoint(addToCartControl, true, shift);
             }
-            var totalSalesExperiment = parseInt(d['total_sales_experiment']);
-            if (!isNaN(totalSalesExperiment)) {
-                totalsalesChart.series[1].addPoint(totalSalesExperiment, true, shift);
+            var addToCartExperiment = parseInt(d['add_to_cart_experiment']);
+            if (!isNaN(addToCartExperiment)) {
+                addtocartChart.series[1].addPoint(addToCartExperiment, true, shift);
             }
 
             var totalSalesControl = parseInt(d['total_sales_control']);
