@@ -96,14 +96,34 @@
             var groupControlSeries = sessionsChart.series[0];
             var shift = (groupControlSeries.data.length > 20);
 
-            sessionsChart.series[0].addPoint(parseInt(d['group_control']), true, shift);
-            sessionsChart.series[1].addPoint(parseInt(d['group_experiment']), true, shift);
+            // TODO: DRY this up.
 
-            totalsalesChart.series[0].addPoint(parseFloat(d['total_sales_control']), true, shift);
-            totalsalesChart.series[1].addPoint(parseFloat(d['total_sales_experiment']), true, shift);
+            var groupControl = parseInt(d['group_control']);
+            if (!isNaN(groupControl)) {
+                sessionsChart.series[0].addPoint(groupControl, true, shift);
+            }
+            var groupExperiment = parseInt(d['group_experiment']);
+            if (!isNan(groupExperiment)) {
+                sessionsChart.series[1].addPoint(groupExperiment, true, shift);
+            }
 
-            ordervalueChart.series[0].addPoint(parseFloat(d['order_value_control']), true, shift);
-            ordervalueChart.series[1].addPoint(parseFloat(d['order_value_experiment']), true, shift);
+            var totalSalesControl = parseInt(d['total_sales_control']);
+            if (!isNan(totalSalesControl)) {
+                totalsalesChart.series[0].addPoint(totalSalesControl, true, shift);
+            }
+            var totalSalesExperiment = parseInt(d['total_sales_experiment']);
+            if (!isNan(totalSalesExperiment)) {
+                totalsalesChart.series[1].addPoint(totalSalesExperiment, true, shift);
+            }
+
+            var orderValueControl = parseInt(d['order_value_control']);
+            if (!isNan(orderValueControl)) {
+                ordervalueChart.series[0].addPoint(orderValueControl, true, shift);
+            }
+            var orderValueExperiment = parseInt(d['order_value_experiment']);
+            if (!isNan(orderValueExperiment)) {
+                ordervalueChart.series[1].addPoint(orderValueExperiment, true, shift);
+            }
         };
     </script>
 {% end %}
