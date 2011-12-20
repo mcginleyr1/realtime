@@ -3,16 +3,18 @@
 {% block main-content %}
     <div id="sessions_chart_container" style="width: 100%; height: 250px"></div>
     <div id="addtocart_chart_container" style="width: 100%; height: 250px"></div>
-    <div id="totalsales_chart_container" style="width: 100%; height: 250px"></div>
+    <!--<div id="totalsales_chart_container" style="width: 100%; height: 250px"></div>-->
     <div id="ordervalue_chart_container" style="width: 100%; height: 250px"></div>
+    <div id="rps_chart_container" style="width: 100%; height: 250px"></div>
 {% end %}
 
 {% block bottom-js %}
     <script type="text/javascript">
         var sessionsChart;
         var addtocartChart;
-        var totalsalesChart;
+//        var totalsalesChart;
         var ordervalueChart;
+        var rpsChart;
 
         $(document).ready(function() {
             sessionsChart = new Highcharts.Chart({
@@ -58,29 +60,29 @@
                     }
                 ]
             });
-            totalsalesChart = new Highcharts.Chart({
-                chart: {
-                    renderTo: 'totalsales_chart_container',
-                    type: 'line'
-                },
-                title: {text: 'Total Sales'},
-//                xAxis: {
-//                    categories: ['Apples', 'Bananas', 'Oranges']
+//            totalsalesChart = new Highcharts.Chart({
+//                chart: {
+//                    renderTo: 'totalsales_chart_container',
+//                    type: 'line'
 //                },
-                yAxis: {
-                    title: {text: '$'}
-                },
-                series: [
-                    {
-                        name: 'Control Total Sales',
-                        data: []
-                    },
-                    {
-                        name: 'Experiment Total Sales',
-                        data: []
-                    }
-                ]
-            });
+//                title: {text: 'Total Sales'},
+////                xAxis: {
+////                    categories: ['Apples', 'Bananas', 'Oranges']
+////                },
+//                yAxis: {
+//                    title: {text: '$'}
+//                },
+//                series: [
+//                    {
+//                        name: 'Control Total Sales',
+//                        data: []
+//                    },
+//                    {
+//                        name: 'Experiment Total Sales',
+//                        data: []
+//                    }
+//                ]
+//            });
             ordervalueChart = new Highcharts.Chart({
                 chart: {
                     renderTo: 'ordervalue_chart_container',
@@ -100,6 +102,29 @@
                     },
                     {
                         name: 'Experiment AOV',
+                        data: []
+                    }
+                ]
+            });
+            rpsChart = new Highcharts.Chart({
+                chart: {
+                    renderTo: 'rps_chart_container',
+                    type: 'line'
+                },
+                title: {text: 'Revenue Per Session'},
+//                xAxis: {
+//                    categories: ['Apples', 'Bananas', 'Oranges']
+//                },
+                yAxis: {
+                    title: {text: '$'}
+                },
+                series: [
+                    {
+                        name: 'Control RPS',
+                        data: []
+                    },
+                    {
+                        name: 'Experiment RPS',
                         data: []
                     }
                 ]
@@ -142,14 +167,14 @@
                 addtocartChart.series[1].addPoint(addToCartExperiment, true, shift);
             }
 
-            var totalSalesControl = parseInt(d['total_sales_control']);
-            if (!isNaN(totalSalesControl)) {
-                totalsalesChart.series[0].addPoint(totalSalesControl, true, shift);
-            }
-            var totalSalesExperiment = parseInt(d['total_sales_experiment']);
-            if (!isNaN(totalSalesExperiment)) {
-                totalsalesChart.series[1].addPoint(totalSalesExperiment, true, shift);
-            }
+//            var totalSalesControl = parseInt(d['total_sales_control']);
+//            if (!isNaN(totalSalesControl)) {
+//                totalsalesChart.series[0].addPoint(totalSalesControl, true, shift);
+//            }
+//            var totalSalesExperiment = parseInt(d['total_sales_experiment']);
+//            if (!isNaN(totalSalesExperiment)) {
+//                totalsalesChart.series[1].addPoint(totalSalesExperiment, true, shift);
+//            }
 
             var orderValueControl = parseInt(d['order_value_control']);
             if (!isNaN(orderValueControl)) {
@@ -158,6 +183,15 @@
             var orderValueExperiment = parseInt(d['order_value_experiment']);
             if (!isNaN(orderValueExperiment)) {
                 ordervalueChart.series[1].addPoint(orderValueExperiment, true, shift);
+            }
+
+            var rpsControl = parseInt(d['session_control']);
+            if (!isNaN(rpsControl)) {
+                rpsChart.series[0].addPoint(rpsControl, true, shift);
+            }
+            var rpsExperiment = parseInt(d['session_experiment']);
+            if (!isNaN(rpsExperiment)) {
+                rpsChart.series[1].addPoint(rpsExperiment, true, shift);
             }
         };
     </script>

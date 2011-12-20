@@ -10,18 +10,29 @@ from monetate import keys as redis_keys
 
 
 class LandingHandler(tornado.web.RequestHandler):
-    def _render_with_campaign_list(self, results):
-        self.render('index.html', campaigns=results)
+#    def _render_with_campaign_list(self, results):
+#        self.render('index.html', campaigns=results)
+#
+#        self.redis_client.disconnect()
 
-        self.redis_client.disconnect()
-
-    @tornado.web.asynchronous
     def get(self, *args, **kwargs):
-        self.redis_client = database.Redis().client
+        #self.redis_client = database.Redis().client
+        self.redis_client = database.SyncRedis().client
 
-        self.redis_client.smembers(
-            redis_keys.get_account_campaign_list_key(52),
-            self._render_with_campaign_list)
+#        self.redis_client.smembers(
+#            redis_keys.get_account_campaign_list_key(52),
+#            self._render_with_campaign_list)
+
+        qvc_campaigns = self.redis_client.smembers(
+            redis_keys.get_account_campaign_list_key(52))
+        bb_campaigns = self.redis_client.smembers(
+            redis_keys.get_account_campaign_list_key(129))
+
+        self.render('index.html',
+                    qvc_campaigns=qvc_campaigns,
+                    bb_campaigns=bb_campaigns)
+
+
 
 
 class MetricsHandler(tornado.web.RequestHandler):
@@ -129,7 +140,6 @@ class CampaignMetricDataHandler(RedisWebSocketHandler):
         if self.stream.closed():
             pass
         else:
-            print "data", data
             self.write_message(data)
 
             tornado.ioloop.IOLoop.instance().add_timeout(
