@@ -20,7 +20,7 @@ class LandingHandler(tornado.web.RequestHandler):
         self.redis_client = database.Redis().client
 
         self.redis_client.smembers(
-            redis_keys.get_account_campaign_list_key(129),
+            redis_keys.get_account_campaign_list_key(52),
             self._render_with_campaign_list)
 
 
