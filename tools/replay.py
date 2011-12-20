@@ -67,7 +67,7 @@ def cat_key(line, key, value):
     return line
 
 
-def create_line(account, add_to_cart, new_customer, cid, grp, purchase_value=None):
+def create_line(account, add_to_cart, new_customer, grp, cid=None, purchase_value=None):
     line = ''
     line = cat_key(line, 'act', account)
     line = cat_key(line, 'cid', cid)
@@ -87,6 +87,10 @@ def format_request_data(data):
     new_customer = data['visit']['new_customer']
     purchases = data['session']['purchase']
     offers = data['session']['offer']
+    grp = '0'
+    if not offers:
+        line = create_line(account, add_to_cart, new_customer, grp)
+        yield '?%s' % line
     for offer in offers:
        grp = offer['grp']
        cid = offer['campaign_id']

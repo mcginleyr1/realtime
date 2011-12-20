@@ -23,7 +23,7 @@ class Recorder(tornado.web.RequestHandler):
     def get(self, *args, **kwargs):
         io = tornado.ioloop.IOLoop.instance()
         account = self.get_argument('act', None)
-        group = self.get_argument('grp', None)
+        group = self.get_argument('grp', 0)
         purchase_total = self.get_argument('pch', None)
         cid = self.get_argument('cid', None)
         add_to_cart = self.get_argument('atc', None)
