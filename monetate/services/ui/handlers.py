@@ -10,18 +10,8 @@ from monetate import keys as redis_keys
 
 
 class LandingHandler(tornado.web.RequestHandler):
-#    def _render_with_campaign_list(self, results):
-#        self.render('index.html', campaigns=results)
-#
-#        self.redis_client.disconnect()
-
     def get(self, *args, **kwargs):
-        #self.redis_client = database.Redis().client
         self.redis_client = database.SyncRedis().client
-
-#        self.redis_client.smembers(
-#            redis_keys.get_account_campaign_list_key(52),
-#            self._render_with_campaign_list)
 
         qvc_campaigns = self.redis_client.smembers(
             redis_keys.get_account_campaign_list_key(52))
@@ -31,8 +21,6 @@ class LandingHandler(tornado.web.RequestHandler):
         self.render('index.html',
                     qvc_campaigns=qvc_campaigns,
                     bb_campaigns=bb_campaigns)
-
-
 
 
 class MetricsHandler(tornado.web.RequestHandler):
@@ -48,14 +36,11 @@ class RedisWebSocketHandler(tornado.websocket.WebSocketHandler):
     def open(self, *args, **kwargs):
         logging.debug('WebSocket opened, getting redis connection')
 
-        #self.redis_client = database.Redis().client
         self.redis_client = database.SyncRedis().client
 
 
     def on_close(self):
         logging.debug('WebSocket closed, closing redis connection')
-
-        #self.redis_client.disconnect()
 
 
 class CampaignMetricDataHandler(RedisWebSocketHandler):
@@ -97,6 +82,27 @@ class CampaignMetricDataHandler(RedisWebSocketHandler):
 
         return control_value, experiment_value
 
+    def _get_order_value_values(self, account_id, campaign_id):
+        def get_group_value(group):
+            d = self.redis_client.hgetall(
+                    redis_keys.get_order_value_key(account_id, campaign_id, group))
+
+            count = d['count']
+
+            if 'value' in d:
+                if count:
+                    return float(d['value']) / float(count)
+                else:
+                    return None
+            else:
+                return 0
+
+        control_value = get_group_value(redis_keys.GROUP_CONTROL)
+        experiment_value = get_group_value(redis_keys.GROUP_EXPERIMENT)
+
+        return control_value, experiment_value
+
+
     def _send_metric_data_and_requeue(self, account_id, campaign_id):
         """
         If the WebSocket stream is still open then send the metric data
@@ -108,14 +114,15 @@ class CampaignMetricDataHandler(RedisWebSocketHandler):
                 redis_keys.get_group_key(account_id, campaign_id, redis_keys.GROUP_EXPERIMENT),
                 redis_keys.get_total_sales_key(account_id, campaign_id, redis_keys.GROUP_CONTROL),
                 redis_keys.get_total_sales_key(account_id, campaign_id, redis_keys.GROUP_EXPERIMENT),
-                redis_keys.get_order_value_key(account_id, campaign_id, redis_keys.GROUP_CONTROL),
-                redis_keys.get_order_value_key(account_id, campaign_id, redis_keys.GROUP_EXPERIMENT),
                 redis_keys.get_add_to_cart_key(account_id, campaign_id, redis_keys.GROUP_CONTROL),
                 redis_keys.get_add_to_cart_key(account_id, campaign_id, redis_keys.GROUP_EXPERIMENT)
             ]
         )
 
-        session_value_control, session_value_experiment = self._get_session_value_values(
+        rps_control, rps_experiment = self._get_session_value_values(
+            account_id, campaign_id)
+
+        aov_control, aov_experiment = self._get_order_value_values(
             account_id, campaign_id)
 
         group_control = multi_results[0]
@@ -129,12 +136,12 @@ class CampaignMetricDataHandler(RedisWebSocketHandler):
             'group_experiment': group_experiment,
             'total_sales_control': multi_results[2],
             'total_sales_experiment': multi_results[3],
-            'order_value_control': multi_results[4],
-            'order_value_experiment': multi_results[5],
+            'order_value_control': aov_control,
+            'order_value_experiment': aov_experiment,
             'add_to_cart_control': add_to_cart_control,
             'add_to_cart_experiment': add_to_cart_experiment,
-            'session_control': session_value_control,
-            'session_experiment': session_value_experiment
+            'session_control': rps_control,
+            'session_experiment': rps_experiment
         }
 
         if self.stream.closed():
