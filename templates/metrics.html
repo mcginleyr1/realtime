@@ -103,25 +103,25 @@
                 sessionsChart.series[0].addPoint(groupControl, true, shift);
             }
             var groupExperiment = parseInt(d['group_experiment']);
-            if (!isNan(groupExperiment)) {
+            if (!isNaN(groupExperiment)) {
                 sessionsChart.series[1].addPoint(groupExperiment, true, shift);
             }
 
             var totalSalesControl = parseInt(d['total_sales_control']);
-            if (!isNan(totalSalesControl)) {
+            if (!isNaN(totalSalesControl)) {
                 totalsalesChart.series[0].addPoint(totalSalesControl, true, shift);
             }
             var totalSalesExperiment = parseInt(d['total_sales_experiment']);
-            if (!isNan(totalSalesExperiment)) {
+            if (!isNaN(totalSalesExperiment)) {
                 totalsalesChart.series[1].addPoint(totalSalesExperiment, true, shift);
             }
 
             var orderValueControl = parseInt(d['order_value_control']);
-            if (!isNan(orderValueControl)) {
+            if (!isNaN(orderValueControl)) {
                 ordervalueChart.series[0].addPoint(orderValueControl, true, shift);
             }
             var orderValueExperiment = parseInt(d['order_value_experiment']);
-            if (!isNan(orderValueExperiment)) {
+            if (!isNaN(orderValueExperiment)) {
                 ordervalueChart.series[1].addPoint(orderValueExperiment, true, shift);
             }
         };
