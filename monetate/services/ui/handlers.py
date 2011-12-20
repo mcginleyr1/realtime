@@ -16,13 +16,30 @@ class LandingHandler(tornado.web.RequestHandler):
 
 class MetricsHandler(tornado.web.RequestHandler):
     def get(self, *args, **kwargs):
+#        self.redis_client = database.Redis().client
+
+#        self.redis_client.smembers()
+
         self.render('metrics.html',
                     ui_port=settings.UI_PORT,
                     account_id=kwargs['account_id'],
                     campaign_id=kwargs['campaign_id'])
 
 
-class MetricDataHandler(tornado.websocket.WebSocketHandler):
+class RedisWebSocketHandler(tornado.websocket.WebSocketHandler):
+    def open(self, *args, **kwargs):
+        logging.debug('WebSocket opened, getting redis connection')
+
+        self.redis_client = database.Redis().client
+
+
+    def on_close(self):
+        logging.debug('WebSocket closed, closing redis connection')
+
+        self.redis_client.disconnect()
+
+
+class CampaignMetricDataHandler(RedisWebSocketHandler):
     # TODO: Use a separate IOLoop for the WebSocket stuff?
 
     def _send_metric_data(self, results):
@@ -78,16 +95,6 @@ class MetricDataHandler(tornado.websocket.WebSocketHandler):
             )
 
 
-    def open(self, *args, **kwargs):
-        # We could do something fancy here like keep track of all instances of
-        # this class at the class level by campaign id and
-        # when then when we write the metric data we could iterate over all of
-        # the instances and write to all of them at once.
-        logging.debug('WebSocket opened, getting redis connection')
-
-        self.redis_client = database.Redis().client
-
-
     def on_message(self, message):
         """
         Called on sending of a WebSocket message from the client.
@@ -101,9 +108,3 @@ class MetricDataHandler(tornado.websocket.WebSocketHandler):
         tornado.ioloop.IOLoop.instance().add_callback(
             self.async_callback(self._send_metric_data_and_requeue, account_id, campaign_id)
         )
-
-
-    def on_close(self):
-        logging.debug('WebSocket closed, closing redis connection')
-
-        self.redis_client.disconnect()

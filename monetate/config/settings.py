@@ -13,6 +13,7 @@ DEFAULT_DSN = 'postgresql+psycopg2://user:password@host:port/dbname'
 REDIS_DSN = 'redis://localhost:6379/realtime'
 
 COLLECTOR_PORT = 8899
+UI_HOST = 'eps1-dev.monetate.net'
 UI_PORT = 8889
 
 try:
