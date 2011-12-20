@@ -10,28 +10,26 @@ from monetate import keys as redis_keys
 
 
 class LandingHandler(tornado.web.RequestHandler):
+    def _render_with_campaign_list(self, results):
+        self.render('index.html', campaigns=results)
+
+        self.redis_client.disconnect()
+
     def get(self, *args, **kwargs):
-        self.render('index.html')
+        self.redis_client = database.Redis().client
+
+        self.redis_client.smembers(
+            redis_keys.get_account_campaign_list_key(129),
+            self._render_with_campaign_list)
 
 
 class MetricsHandler(tornado.web.RequestHandler):
-    def _render_campaign_list(self, results):
-        print resuls
-
+    def get(self, *args, **kwargs):
         self.render('metrics.html',
                     ui_port=settings.UI_PORT,
                     ui_host=settings.UI_HOST,
                     account_id=kwargs['account_id'],
                     campaign_id=kwargs['campaign_id'])
-
-    def get(self, *args, **kwargs):
-        self.redis_client = database.Redis().client
-
-        # For now hardcode Best Buy (129).
-
-        self.redis_client.smembers(
-            redis_keys.get_account_campaign_list_key(129),
-            self._render_campaign_list)
 
 
 class RedisWebSocketHandler(tornado.websocket.WebSocketHandler):
