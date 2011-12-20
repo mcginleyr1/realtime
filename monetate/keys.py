@@ -13,6 +13,12 @@ GROUP_EXPERIMENT = 1
 
 # Redis Keys
 
+def get_account_list_key():
+    return 'account_list'
+
+def get_account_campaign_list_key(account):
+    return '%s/campaigns' % account
+
 def get_add_to_cart_key(account, campaign, group):
     add_to_cart = '%s/add_to_cart/%s/%s'
     return add_to_cart % (account, campaign, group)
