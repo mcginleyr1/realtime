@@ -9,6 +9,7 @@ tornado==2.1.1
 wsgiref==0.1.2
 
 -e git+git://github.com/evilkost/brukva.git#egg=Brukva
+redis==2.4.10
 
 psycopg2==2.4.3
 SQLAlchemy==0.7.4
