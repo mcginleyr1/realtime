@@ -14,3 +14,8 @@ REDIS_DSN = 'redis://localhost:6379/realtime'
 
 COLLECTOR_PORT = 8899
 UI_PORT = 8889
+
+try:
+    import local_settings
+except ImportError:
+    pass
