@@ -15,15 +15,10 @@ GIF = ('GIF89a'
 
 KEYS = ['purchase_total', 'add_to_cart']
 
+Redis = Redis()
+redis = Redis.client
+
 class Recorder(tornado.web.RequestHandler):
-
-    def __init__(self, *request, **kwargs):
-        redis = Redis()
-        self.redis = redis.client
-        super(Recorder,self).__init__(*request,**kwargs)
-        self.dispatch_table = {
-
-        }
 
     def get(self, *args, **kwargs):
         io = tornado.ioloop.IOLoop.instance()
@@ -41,7 +36,8 @@ class Recorder(tornado.web.RequestHandler):
             io.add_callback(self.async_callback(self.update_conversion, account, cid, group, purchase_total))
             io.add_callback(self.async_callback(self.update_session_value, account, cid, group, purchase_total))
         io.add_callback(self.async_callback(self.add_to_new_visitors, account, new_customer))
-        self.set_header("content-type","image/gif")
+        self.set_default_headers()
+        self.set_header("Content-Type","image/gif")
         self.write(GIF)
         self.flush()
 
@@ -49,38 +45,38 @@ class Recorder(tornado.web.RequestHandler):
     def purchase_total_update(self, account, cid, group, value):
         if value:
             key = keys.get_order_value_key(account, cid, group)
-            self.redis.hincrby(key, 'value', int(float(value)))
-            self.redis.hincrby(key, 'count', 1)
+            redis.hincrby(key, 'value', float(value))
+            redis.hincrby(key, 'count', 1)
 
     def add_to_cart_update(self, account, cid, group, value):
         if value:
             key = keys.get_add_to_cart_key(account, cid, group)
-            self.redis.incr(key)
+            redis.incr(key)
 
     def add_to_total_sales(self, account, cid, group, value):
         if value:
             key = keys.get_total_sales_key(account, cid, group)
-            self.redis.incrby(key, int(float(value)))
+            redis.incrby(key, float(value))
 
     def add_to_group(self, account, cid, group):
         key = keys.get_group_key(account,cid, group)
-        self.redis.incr(key)
+        redis.incr(key)
 
     def update_conversion(self, account, cid, group, value):
         key = keys.get_conversion_key(account, cid, group)
         if value:
-            self.redis.hincrby(key, 'value', 1)
-        self.redis.hincrby(key, 'count', 1)
+            redis.hincrby(key, 'value', 1)
+        redis.hincrby(key, 'count', 1)
 
     def add_to_new_visitors(self, account, value):
         if value:
             key = keys.get_new_visitors_key(account)
-            self.redis.incr(key)
+            redis.incr(key)
 
     def update_session_value(self, account, cid, group, value):
         key = keys.get_session_value_key(account, cid, group)
         if value:
-            self.redis.hincrby(key, 'value', int(float(value)))
-        self.redis.hincrby(key, 'count', 1)
+            redis.hincrby(key, 'value', float(value))
+        redis.hincrby(key, 'count', 1)
 
-
+    

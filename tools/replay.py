@@ -92,11 +92,11 @@ def format_request_data(data):
        cid = offer['campaign_id']
        if not purchases:
            line = create_line(account, add_to_cart, new_customer, cid, grp)
-           yield '?encoded="%s"' % line
+           yield '?%s' % line
        for purchase in purchases:
             purchase_value = purchase.get('value', None)
             line = create_line(account, add_to_cart, new_customer, cid, grp)
-            yield '?encoded="%s"' % line
+            yield '?%s' % line
 
 def main(s3_uri, ip):
     urls = query_s3_track_set(s3_uri)
