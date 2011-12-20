@@ -43,7 +43,7 @@ def cat_key(line, key, value):
     return line
 
 
-def create_line(account, add_to_cart, new_customer, grp, purchase_value=None, cid=None, ):
+def create_line(account, add_to_cart, new_customer, grp, purchase_value, cid, session_value=None ):
     line = ''
     line = cat_key(line, 'act', account)
     line = cat_key(line, 'cid', cid)
@@ -51,6 +51,7 @@ def create_line(account, add_to_cart, new_customer, grp, purchase_value=None, ci
     line = cat_key(line, 'atc', add_to_cart)
     line = cat_key(line, 'nc', new_customer)
     line = cat_key(line, 'pch', purchase_value)
+    line = cat_key(line, 'st', session_value)
     return line
 
 
@@ -63,11 +64,15 @@ def format_request_data():
     add_to_cart = str(random.randint(0, 1))
     new_customer = str(random.randint(0, 1))
     grp = random.randint(0,1)
+    session_total = 0;
     for i in range(0, 100):
         purchases = random.randint(0, 1)
         purchase_value = None
         if purchases:
             purchase_value = round(decimal.Decimal(str(random.uniform(0, 200))), 2)
+            session_total += purchase_value
+        if i == 99:
+            line = create_line(account, add_to_cart, new_customer, grp, purchase_value, cid, session_total)
         line = create_line(account, add_to_cart, new_customer, grp, purchase_value, cid)
         yield '?%s' % line
    

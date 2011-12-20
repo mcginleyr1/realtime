@@ -50,3 +50,7 @@ def get_session_value_key(account, campaign, group):
 def get_total_sales_key(account, campaign, group):
     total_sales = '%s/total_sales/%s/%s'
     return total_sales % (account, campaign, group)
+
+def get_session_total_key(account, campaign):
+    session_totals = '%s/session_totals/%s'
+    return session_totals % (account, campaign)

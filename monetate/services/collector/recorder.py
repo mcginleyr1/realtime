@@ -28,16 +28,17 @@ class Recorder(tornado.web.RequestHandler):
         cid = self.get_argument('cid', None)
         add_to_cart = self.get_argument('atc', None)
         new_customer = self.get_argument('nc', None)
-        if cid:
-            io.add_callback(self.async_callback(self.update_account_list, account))
-            io.add_callback(self.async_callback(self.update_account_campaign_list, account, cid))
-            io.add_callback(self.async_callback(self.purchase_total_update, account, cid, group, purchase_total))
-            io.add_callback(self.async_callback(self.add_to_cart_update, account, cid, group, add_to_cart))
-            io.add_callback(self.async_callback(self.add_to_total_sales, account, cid, group, purchase_total))
-            io.add_callback(self.async_callback(self.add_to_group, account, cid, group))
-            io.add_callback(self.async_callback(self.update_conversion, account, cid, group, purchase_total))
-            io.add_callback(self.async_callback(self.update_session_value, account, cid, group, purchase_total))
+        session_total = self.get_argument('st', None)
+        io.add_callback(self.async_callback(self.update_account_list, account))
+        io.add_callback(self.async_callback(self.update_account_campaign_list, account, cid))
+        io.add_callback(self.async_callback(self.purchase_total_update, account, cid, group, purchase_total))
+        io.add_callback(self.async_callback(self.add_to_cart_update, account, cid, group, add_to_cart))
+        io.add_callback(self.async_callback(self.add_to_total_sales, account, cid, group, purchase_total))
+        io.add_callback(self.async_callback(self.add_to_group, account, cid, group))
+        io.add_callback(self.async_callback(self.update_conversion, account, cid, group, purchase_total))
+        io.add_callback(self.async_callback(self.update_session_value, account, cid, group, purchase_total))
         io.add_callback(self.async_callback(self.add_to_new_visitors, account, new_customer))
+        io.add_callback(self.async_callback(self.update_session_total, account, cid, session_total))
         self.set_default_headers()
         self.set_header("Content-Type","image/gif")
         self.write(GIF)
@@ -88,3 +89,9 @@ class Recorder(tornado.web.RequestHandler):
     def update_account_campaign_list(self, account, cid):
         key = keys.get_account_campaign_list_key(account)
         redis.sadd(key, cid)
+
+
+    def update_session_total(self, account, cid, value):
+        if value:
+            key = keys.get_session_total_key(account, cid)
+            redis.incrby(key, value)
