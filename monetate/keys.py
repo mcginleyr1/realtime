@@ -14,7 +14,7 @@ GROUP_EXPERIMENT = 1
 # Redis Keys
 
 def get_account_list_key():
-    return 'account_list'
+    return 'accounts'
 
 def get_account_campaign_list_key(account):
     return '%s/campaigns' % account
