@@ -24,7 +24,7 @@ class Recorder(tornado.web.RequestHandler):
         io = tornado.ioloop.IOLoop.instance()
         account = self.get_argument('act', None)
         group = self.get_argument('grp', 0)
-        purchase_total = self.get_argument('pch', None)
+        purchase_total = self.get_argument('pch', 0)
         cid = self.get_argument('cid', None)
         add_to_cart = self.get_argument('atc', None)
         new_customer = self.get_argument('nc', None)
@@ -45,20 +45,19 @@ class Recorder(tornado.web.RequestHandler):
 
 
     def purchase_total_update(self, account, cid, group, value):
-        if value:
-            key = keys.get_order_value_key(account, cid, group)
-            redis.hincrby(key, 'value', float(value))
-            redis.hincrby(key, 'count', 1)
+        key = keys.get_order_value_key(account, cid, group)
+        redis.hincrby(key, 'value', int(float(value)))
+        redis.hincrby(key, 'count', 1)
 
     def add_to_cart_update(self, account, cid, group, value):
-        if value:
+        if value == '1':
             key = keys.get_add_to_cart_key(account, cid, group)
             redis.incr(key)
 
     def add_to_total_sales(self, account, cid, group, value):
         if value:
             key = keys.get_total_sales_key(account, cid, group)
-            redis.incrby(key, float(value))
+            redis.incrby(key, int(float(value)))
 
     def add_to_group(self, account, cid, group):
         key = keys.get_group_key(account,cid, group)
@@ -68,6 +67,8 @@ class Recorder(tornado.web.RequestHandler):
         key = keys.get_conversion_key(account, cid, group)
         if value:
             redis.hincrby(key, 'value', 1)
+        else:
+            redis.hincrby(key, 'value', 0)
         redis.hincrby(key, 'count', 1)
 
     def add_to_new_visitors(self, account, value):
@@ -77,9 +78,8 @@ class Recorder(tornado.web.RequestHandler):
 
     def update_session_value(self, account, cid, group, value):
         key = keys.get_session_value_key(account, cid, group)
-        if value:
-            redis.hincrby(key, 'value', float(value))
         redis.hincrby(key, 'count', 1)
+        redis.hincrby(key, 'value', int(float(value)))
 
     def update_account_list(self, account):
         key = keys.get_account_list_key()
