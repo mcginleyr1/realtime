@@ -69,7 +69,7 @@ def format_request_data():
         purchases = random.randint(0, 1)
         purchase_value = None
         if purchases:
-            purchase_value = round(decimal.Decimal(str(random.uniform(0, 200))), 2)
+            purchase_value = round(decimal.Decimal(str(random.uniform(0, 2000))), 2)
             session_total += purchase_value
         if i == 99:
             line = create_line(account, add_to_cart, new_customer, grp, purchase_value, cid, session_total)
