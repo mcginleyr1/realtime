@@ -202,7 +202,7 @@
         $('#pause').bind('click', function(evt) {
             evt.preventDefault();
             ws.send("pause");
-            this.text(($('#pause').text() == 'Pause') ? 'Resume' : 'Pause');
+            $('#pause').text(($('#pause').text() == 'Pause') ? 'Resume' : 'Pause');
         });
     </script>
 {% end %}
