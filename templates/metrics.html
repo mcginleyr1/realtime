@@ -6,6 +6,10 @@
     <!--<div id="totalsales_chart_container" style="width: 100%; height: 250px"></div>-->
     <div id="ordervalue_chart_container" style="width: 100%; height: 250px"></div>
     <div id="rps_chart_container" style="width: 100%; height: 250px"></div>
+        
+    <p>
+        <a href="#" id="pause">Pause</a>
+    </p>
 {% end %}
 
 {% block bottom-js %}
@@ -194,5 +198,11 @@
                 rpsChart.series[1].addPoint(rpsExperiment, true, shift);
             }
         };
+
+        $('#pause').bind('click', function(evt) {
+            evt.preventDefault();
+            ws.send("pause");
+            $('#pause').text(($('#pause').text() == 'Pause') ? 'Resume' : 'Pause');
+        });
     </script>
 {% end %}
