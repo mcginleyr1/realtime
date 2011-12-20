@@ -95,11 +95,11 @@ def format_request_data(data):
        grp = offer['grp']
        cid = offer['campaign_id']
        if not purchases:
-           line = create_line(account, add_to_cart, new_customer, cid, grp)
+           line = create_line(account, add_to_cart, new_customer, grp, cid)
            yield '?%s' % line
        for purchase in purchases:
             purchase_value = purchase.get('value', None)
-            line = create_line(account, add_to_cart, new_customer, cid, grp)
+            line = create_line(account, add_to_cart, new_customer, grp, cid)
             yield '?%s' % line
 
 def main(s3_uri, ip):
