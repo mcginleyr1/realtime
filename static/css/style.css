@@ -1,0 +1,100 @@
+hr {
+  background: none;
+  height: 1px;
+  border: 1px solid #e8e8e8;
+}
+
+h2 {
+  font-size: 42px;
+}
+
+body {
+  padding: 30px;
+  text-align: center;
+  background-color: #fff;
+  color: #222;
+}
+
+body, h1, h2, h3, h4, h5, p {
+  font-family: "Times New Roman", Georgia, serif;
+}
+
+img {
+  border: 0;
+}
+
+a {
+  color: #336699;
+}
+
+a:hover {
+  color: #6699cc;
+}
+
+a:active, a:focus {
+  outline: 0;
+}
+
+div.container, div.footer {
+  margin: 0 auto 30px;
+  width: 820px;
+  padding: 0;
+}
+
+h1 {
+  font-weight: 500;
+  font-style: normal;
+  font-size: 58px;
+  clear: both;
+  line-height: 1.0em;
+  margin-bottom: 20px;
+  letter-spacing: -2px;
+	color: #232323;
+}
+
+h2 {
+  color: #232323;
+  margin: 30px 0;
+  font-size: 48px;
+  font-weight: 500;
+  font-style: normal;
+  line-height: 1.1em;
+  letter-spacing: -1px;
+}
+
+h6 {
+  margin: 5px 0 10px;
+  font-size: 14px;
+  color: #cc0000;
+}
+
+/* iPhone */
+@media only screen and (max-device-width: 480px) {
+  h1 { font-size: 52px; }
+  h2 { font-size: 42px; }
+  body.index div.rework div.quotes h3 { line-height: 1.0em; margin: 10px 0; }
+}
+
+/* iPad */
+@media only screen and (min-device-width: 481px) and (max-device-width: 1024px) and (orientation:portrait) {
+  h1 { font-size: 52px; }
+  h2 { font-size: 42px; }
+  body.index h5 { font-size: 18px; }
+  body.index a.box div.product h1 { font-size: 42px; }
+}
+
+@media only screen and (min-device-width: 481px) and (max-device-width: 1024px) and (orientation:landscape) {
+  h1 { font-size: 52px; }
+  h2 { font-size: 42px; }
+  body.index h5 { font-size: 18px; }
+  body.index a.box div.product h1 { font-size: 42px; }
+}
+
+footer {
+	border-top: 1px solid #000;
+	font-family: "Helvetica Neue", Helvetica, sans-serif;
+    background-color: #111;
+	padding-top: 20px;
+	color: #ccc;
+	clear: both;
+}
