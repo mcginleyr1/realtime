@@ -67,15 +67,18 @@ class CampaignMetricDataHandler(RedisWebSocketHandler):
             d = self.redis_client.hgetall(
                     redis_keys.get_session_value_key(account_id, campaign_id, group))
 
-            count = d['count']
+            try:
+                count = d['count']
 
-            if 'value' in d:
-                if count:
-                    return float(d['value']) / float(count)
+                if 'value' in d:
+                    if count:
+                        return float(d['value']) / float(count)
+                    else:
+                        return None
                 else:
-                    return None
-            else:
-                return 0
+                    return 0
+            except KeyError:
+                return None
 
         control_value = get_group_value(redis_keys.GROUP_CONTROL)
         experiment_value = get_group_value(redis_keys.GROUP_EXPERIMENT)
@@ -87,15 +90,18 @@ class CampaignMetricDataHandler(RedisWebSocketHandler):
             d = self.redis_client.hgetall(
                     redis_keys.get_order_value_key(account_id, campaign_id, group))
 
-            count = d['count']
+            try:
+                count = d['count']
 
-            if 'value' in d:
-                if count:
-                    return float(d['value']) / float(count)
+                if 'value' in d:
+                    if count:
+                        return float(d['value']) / float(count)
+                    else:
+                        return None
                 else:
-                    return None
-            else:
-                return 0
+                    return 0
+            except KeyError:
+                return None
 
         control_value = get_group_value(redis_keys.GROUP_CONTROL)
         experiment_value = get_group_value(redis_keys.GROUP_EXPERIMENT)
