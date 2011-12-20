@@ -133,11 +133,11 @@
                 sessionsChart.series[1].addPoint(groupExperiment, true, shift);
             }
 
-            var addToCartControl = parseInt(d['add_to_cart_control']);
+            var addToCartControl = parseFloat(d['add_to_cart_control']);
             if (!isNaN(addToCartControl)) {
                 addtocartChart.series[0].addPoint(addToCartControl, true, shift);
             }
-            var addToCartExperiment = parseInt(d['add_to_cart_experiment']);
+            var addToCartExperiment = parseFloat(d['add_to_cart_experiment']);
             if (!isNaN(addToCartExperiment)) {
                 addtocartChart.series[1].addPoint(addToCartExperiment, true, shift);
             }
