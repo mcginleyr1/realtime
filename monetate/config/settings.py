@@ -17,6 +17,6 @@ UI_HOST = 'eps1-dev.monetate.net'
 UI_PORT = 8889
 
 try:
-    import local_settings
+    from local_settings import *
 except ImportError:
     pass

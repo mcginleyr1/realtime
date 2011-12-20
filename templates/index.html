@@ -1,8 +1,14 @@
 {% extends "base.html %}
 
 {% block main-content %}
-    <p>
-        <!-- /metrics/{account id}/{campaign id} -->
-        <a href="/metrics/52/12345">Metrics</a>
-    </p>
+    <ul>
+      {% for campaign_id in campaigns %}
+          <li><a href="/metrics/52/{{ campaign_id }}">{{ campaign_id }}</a></li>
+      {% end %}
+    </ul>        
+    <!--<p>-->
+        <!--&lt;!&ndash; /metrics/{account id}/{campaign id} &ndash;&gt;-->
+        <!--<a href="/metrics/52/12345">Metrics</a>-->
+        <!---->
+    <!--</p>-->
 {% end %}

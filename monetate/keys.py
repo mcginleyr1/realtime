@@ -6,7 +6,7 @@
 # control_group = Total number of control sessions.
 # experiment_group Total number of experiment sessions.
 # ordervalue = Sum of purchase amounts / number of sessions with a purchase.
-# session_value = Sum of purchase amounts / number of sessions
+# session_value = Sum of purchase amounts / number of sessions (RPS)
 
 GROUP_CONTROL = 0
 GROUP_EXPERIMENT = 1
