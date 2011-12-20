@@ -58,7 +58,6 @@ def query_s3_track_set(uri):
 
 def cat_key(line, key, value):
     """ Concat together the new value and the existing line """
-
     if value:
         if line:
             line = "%s&%s=%s" % (line, key, value)
@@ -67,7 +66,7 @@ def cat_key(line, key, value):
     return line
 
 
-def create_line(account, add_to_cart, new_customer, grp, cid=None, purchase_value=None):
+def create_line(account, add_to_cart, new_customer, grp, purchase_value=None, cid=None, ):
     line = ''
     line = cat_key(line, 'act', account)
     line = cat_key(line, 'cid', cid)
@@ -88,20 +87,20 @@ def format_request_data(data):
     purchases = data['session']['purchase']
     offers = data['session']['offer']
     grp = '0'
-    if not offers:
+    if not purchases:
         line = create_line(account, add_to_cart, new_customer, grp)
         yield '?%s' % line
-    for offer in offers:
-       grp = offer['grp']
-       cid = offer['campaign_id']
-       if not purchases:
-           line = create_line(account, add_to_cart, new_customer, grp, cid)
-           yield '?%s' % line
-       for purchase in purchases:
-            purchase_value = purchase.get('value', None)
-            line = create_line(account, add_to_cart, new_customer, grp, cid)
+    for purchase in purchases:
+        purchase_value = purchase.get('value', None)
+        if not offers:
+            line = create_line(account, 
+                    add_to_cart, new_customer, grp, purchase_value)
+        for offer in offers:
+            grp = offer['grp']
+            cid = offer['campaign_id']
+            line = create_line(account, add_to_cart, new_customer, grp, purchase_value, cid)
             yield '?%s' % line
-
+   
 def main(s3_uri, ip):
     urls = query_s3_track_set(s3_uri)
     for url in urls:
@@ -116,10 +115,8 @@ def main(s3_uri, ip):
                 line = b.readline()
                 while line:
                     data = get_track_data(line)
-                    print data
                     for query_str in format_request_data(data):
                         record_url = "http://%s:8899/intelligence/%s" % (ip, query_str)
-                        print record_url
                         urllib2.urlopen(record_url)
                     line = b.readline()
 
