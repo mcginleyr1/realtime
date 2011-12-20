@@ -66,6 +66,18 @@ def cat_key(line, key, value):
             line = "%s=%s" % (key, value)
     return line
 
+
+def create_line(account, add_to_cart, new_customer, cid, grp, purchase_value=None):
+    line = ''
+    line = cat_key(line, 'act', account)
+    line = cat_key(line, 'cid', cid)
+    line = cat_key(line, 'grp', grp)
+    line = cat_key(line, 'atc', add_to_cart)
+    line = cat_key(line, 'nc', new_customer)
+    line = cat_key(line, 'pch', purchase_value)
+    return line
+
+
 def format_request_data(data):
     """
     Returns a string matching how our request should look
@@ -76,18 +88,14 @@ def format_request_data(data):
     purchases = data['session']['purchase']
     offers = data['session']['offer']
     for offer in offers:
-        grp = offer['grp']
-        cid = offer['campaign_id']
-        for purchase in purchases:
+       grp = offer['grp']
+       cid = offer['campaign_id']
+       if not purchases:
+           line = create_line(account, add_to_cart, new_customer, cid, grp)
+           yield '?encoded="%s"' % line
+       for purchase in purchases:
             purchase_value = purchase.get('value', None)
-            line = ''
-            line = cat_key(line, 'act', account)
-            line = cat_key(line, 'cid', cid)
-            line = cat_key(line, 'grp', grp)
-            line = cat_key(line, 'atc', add_to_cart)
-            line = cat_key(line, 'nc', new_customer)
-            line = cat_key(line, 'pch', purchase_value)
-
+            line = create_line(account, add_to_cart, new_customer, cid, grp)
             yield '?encoded="%s"' % line
 
 def main(s3_uri, ip):
@@ -104,8 +112,10 @@ def main(s3_uri, ip):
                 line = b.readline()
                 while line:
                     data = get_track_data(line)
+                    print data
                     for query_str in format_request_data(data):
                         record_url = "http://%s:8899/intelligence/%s" % (ip, query_str)
+                        print record_url
                         urllib2.urlopen(record_url)
                     line = b.readline()
 
