@@ -199,7 +199,8 @@
             }
         };
 
-        $('#pause').bind('click', function() {
+        $('#pause').bind('click', function(evt) {
+            evt.preventDefault();
             ws.send("pause");
         });
     </script>
