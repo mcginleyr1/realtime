@@ -111,7 +111,7 @@ class CampaignMetricDataHandler(RedisWebSocketHandler):
         group_experiment = multi_results[1]
 
         add_to_cart_control, add_to_cart_experiment = self._get_add_to_cart_values(
-            results[6], results[7], group_control, group_experiment)
+            multi_results[6], multi_results[7], group_control, group_experiment)
 
         data = {
             'group_control': group_control,
