@@ -94,4 +94,5 @@ class Recorder(tornado.web.RequestHandler):
     def update_session_total(self, account, cid, value):
         if value:
             key = keys.get_session_total_key(account, cid)
-            redis.incrby(key, value)
+            redis.hincrby(key, 'value', value)
+            redis.hincrby(key, 'count', 1)
