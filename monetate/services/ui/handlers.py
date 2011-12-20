@@ -22,6 +22,7 @@ class MetricsHandler(tornado.web.RequestHandler):
 
         self.render('metrics.html',
                     ui_port=settings.UI_PORT,
+                    ui_host=settings.UI_HOST,
                     account_id=kwargs['account_id'],
                     campaign_id=kwargs['campaign_id'])
 
