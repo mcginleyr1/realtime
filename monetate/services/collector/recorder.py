@@ -29,6 +29,8 @@ class Recorder(tornado.web.RequestHandler):
         add_to_cart = self.get_argument('atc', None)
         new_customer = self.get_argument('nc', None)
         if cid:
+            io.add_callback(self.async_callback(self.update_account_list, account))
+            io.add_callback(self.async_callback(self.update_account_campaign_list, account, cid))
             io.add_callback(self.async_callback(self.purchase_total_update, account, cid, group, purchase_total))
             io.add_callback(self.async_callback(self.add_to_cart_update, account, cid, group, add_to_cart))
             io.add_callback(self.async_callback(self.add_to_total_sales, account, cid, group, purchase_total))
@@ -79,4 +81,10 @@ class Recorder(tornado.web.RequestHandler):
             redis.hincrby(key, 'value', float(value))
         redis.hincrby(key, 'count', 1)
 
-    
+    def update_account_list(self, account):
+        key = keys.get_account_list_key()
+        redis.sadd(key, account)
+
+    def update_account_campaign_list(self, account, cid):
+        key = keys.get_account_campaign_list_key(account)
+        redis.sadd(key, cid)
